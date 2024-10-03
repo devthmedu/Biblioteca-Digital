@@ -2,56 +2,58 @@ console.log("Este é o index.js");
 
 const LOCAL_STORAGE_KEY = 'livros';
 
-// Construtor de Livro
-function Livro(nome, autor, tipo) {
-    this.nome = nome;
-    this.autor = autor;
-    this.tipo = tipo;
+// Classe Livro
+class Livro {
+    constructor(nome, autor, tipo, descricao = '', imagem = '') {
+        this.nome = nome;
+        this.autor = autor;
+        this.tipo = tipo;
+        this.descricao = descricao;
+        this.imagem = imagem;
+    }
 }
 
-// Construtor de Exibição
-function Exibir() {}
+// Classe Exibir
+class Exibir {
+    adicionar(livro) {
+        console.log("Adicionando à interface");
+        const tableBody = document.getElementById('tableBody');
+        const uiString = `
+            <tr>
+                <td>${livro.nome}</td>
+                <td>${livro.autor}</td>
+                <td>${livro.tipo}</td>
+                <td><img src="${livro.imagem}" alt="${livro.nome}" style="width:50px; height:75px;"></td>
+                <td>${livro.descricao || 'Descrição não disponível'}</td>
+                <td><button class="btn btn-danger" onclick="deletarLivro('${livro.nome}')" aria-label="Deletar livro ${livro.nome}">Deletar</button></td>
+            </tr>`;
+        tableBody.innerHTML += uiString;
+    }
 
-// Método para adicionar um livro à interface
-Exibir.prototype.adicionar = function (livro) {
-    console.log("Adicionando à interface");
-    const tableBody = document.getElementById('tableBody');
-    const uiString = `
-        <tr>
-            <td>${livro.nome}</td>
-            <td>${livro.autor}</td>
-            <td>${livro.tipo}</td>
-            <td><button class="btn btn-danger" onclick="deletarLivro('${livro.nome}')">Deletar</button></td>
-        </tr>`;
-    tableBody.innerHTML += uiString;
+    limpar() {
+        document.getElementById('libraryForm').reset();
+    }
+
+    validar(livro) {
+        return livro.nome.length >= 2 && livro.autor.length >= 2;
+    }
+
+    mostrar(tipo, mensagem) {
+        const message = document.getElementById('message');
+        message.innerHTML = `
+            <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
+                <strong>Mensagem:</strong> ${mensagem}
+                <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                </button>
+            </div>`;
+        setTimeout(() => {
+            message.innerHTML = '';
+        }, 2000);
+    }
 }
 
-// Método para limpar o formulário
-Exibir.prototype.limpar = function () {
-    document.getElementById('libraryForm').reset();
-}
-
-// Método para validar o livro
-Exibir.prototype.validar = function (livro) {
-    return livro.nome.length >= 2 && livro.autor.length >= 2;
-}
-
-// Método para mostrar mensagens ao usuário
-Exibir.prototype.mostrar = function (tipo, mensagem) {
-    const message = document.getElementById('message');
-    message.innerHTML = `
-        <div class="alert alert-${tipo} alert-dismissible fade show" role="alert">
-            <strong>Mensagem:</strong> ${mensagem}
-            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
-                <span aria-hidden="true">×</span>
-            </button>
-        </div>`;
-    setTimeout(() => {
-        message.innerHTML = '';
-    }, 2000);
-}
-
-// Adiciona um evento de envio ao formulário
+// Adiciona evento de envio ao formulário
 document.getElementById('libraryForm').addEventListener('submit', bibliotecaFormularioEnviar);
 
 // Função para lidar com o envio do formulário
@@ -78,7 +80,7 @@ function bibliotecaFormularioEnviar(e) {
 
 // Função para salvar o livro no localStorage
 function salvarNoLocalStorage(livro) {
-    let livros = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
+    const livros = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
     livros.push(livro);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(livros));
 }
@@ -88,6 +90,7 @@ function deletarLivro(nome) {
     const livros = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
     const novosLivros = livros.filter(livro => livro.nome !== nome);
     localStorage.setItem(LOCAL_STORAGE_KEY, JSON.stringify(novosLivros));
+    
     atualizarTabela();
     mostrarMensagem('success', 'Livro deletado com sucesso');
 }
@@ -96,7 +99,7 @@ function deletarLivro(nome) {
 function atualizarTabela() {
     const livros = JSON.parse(localStorage.getItem(LOCAL_STORAGE_KEY)) || [];
     const tableBody = document.getElementById('tableBody');
-    tableBody.innerHTML = ''; 
+    tableBody.innerHTML = '';
 
     livros.forEach(livro => {
         const uiString = `
@@ -104,7 +107,9 @@ function atualizarTabela() {
                 <td>${livro.nome}</td>
                 <td>${livro.autor}</td>
                 <td>${livro.tipo}</td>
-                <td><button class="btn btn-danger" onclick="deletarLivro('${livro.nome}')">Deletar</button></td>
+                <td><img src="${livro.imagem}" alt="${livro.nome}" style="width:50px; height:75px;"></td>
+                <td>${livro.descricao || 'Descrição não disponível'}</td>
+                <td><button class="btn btn-danger" onclick="deletarLivro('${livro.nome}')" aria-label="Deletar livro ${livro.nome}">Deletar</button></td>
             </tr>`;
         tableBody.innerHTML += uiString;
     });
@@ -116,5 +121,45 @@ function mostrarMensagem(tipo, mensagem) {
     exibir.mostrar(tipo, mensagem);
 }
 
+// Função para buscar livros da Open Library API
+async function buscarLivrosOpenLibrary(titulo) {
+    try {
+        const response = await fetch(`https://openlibrary.org/search.json?q=${encodeURIComponent(titulo)}`);
+        if (!response.ok) {
+            throw new Error('Erro na busca de livros');
+        }
+        const data = await response.json();
+        
+        const livros = await Promise.all(data.docs.map(async (doc) => {
+            const livroDetailsResponse = await fetch(`https://openlibrary.org/books/${doc.key}.json`);
+            const livroDetails = await livroDetailsResponse.json();
+            const descricao = livroDetails.description ? (typeof livroDetails.description === 'string' ? livroDetails.description : livroDetails.description.value) : '';
+            const imagem = livroDetails.covers && livroDetails.covers.length > 0 ? `https://covers.openlibrary.org/b/id/${livroDetails.covers[0]}-M.jpg` : '';
 
+            return new Livro(doc.title || 'Título desconhecido', doc.author_name ? doc.author_name.join(', ') : 'Autor desconhecido', 'Livro', descricao, imagem);
+        }));
+        
+        return livros;
+    } catch (error) {
+        console.error('Erro ao buscar livros:', error);
+        mostrarMensagem('danger', 'Não foi possível buscar livros. Tente novamente mais tarde.');
+    }
+}
+
+// Evento para buscar livros
+document.getElementById('searchButton').addEventListener('click', async () => {
+    const titulo = document.getElementById('searchInput').value;
+    const livros = await buscarLivrosOpenLibrary(titulo);
+    const exibir = new Exibir();
+    
+    if (livros && livros.length > 0) {
+        livros.forEach(livro => {
+            exibir.adicionar(livro);
+        });
+    } else {
+        mostrarMensagem('warning', 'Nenhum livro encontrado.');
+    }
+});
+
+// Chamada inicial para preencher a tabela com livros do localStorage ao carregar a página
 window.onload = atualizarTabela;
