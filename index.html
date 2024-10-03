@@ -1,0 +1,124 @@
+<!doctype html>
+<html lang="pt-BR">
+
+<head>
+ <meta charset="utf-8">
+ <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+ <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/css/bootstrap.min.css">
+ <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+ <link rel="stylesheet" href="./src/styles.css">
+ <link rel="icon" href="./src/assets/logo-bliblioteca.png" type="image/x-icon">
+ <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+ <title>Bem-vindo à Biblioteca</title>
+</head>
+
+<body>
+ <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+  <a class="navbar-brand" href="#">
+   <img src="./src/assets/logo-bliblioteca.png" alt="Logo da Biblioteca" width="30" height="30"
+    class="d-inline-block align-top">
+  </a>
+  <button class="navbar-toggler" type="button" data-toggle="collapse" data-target="#navbarSupportedContent"
+   aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Alternar navegação">
+   <span class="navbar-toggler-icon"></span>
+  </button>
+
+  <div class="collapse navbar-collapse" id="navbarSupportedContent">
+   <ul class="navbar-nav mr-auto">
+    <li class="nav-item active">
+     <a class="nav-link" href="#"> Início <span class="sr-only">(atual)</span></a>
+    </li>
+   </ul>
+   <form class="form-inline my-2 my-lg-0">
+    <input class="form-control mr-sm-2" id="searchTxt" type="search" placeholder="Pesquisar" aria-label="Pesquisar">
+    <button class="btn btn-outline-success my-2 my-sm-0" type="submit"><i class="fas fa-search"></i> Pesquisar</button>
+   </form>
+  </div>
+ </nav>
+
+ <div id="message"></div>
+
+ <div class="container my-3">
+  <h1>Gerenciar Biblioteca</h1>
+  <hr>
+  <form id="libraryForm">
+   <div class="form-group row">
+    <label for="bookName" class="col-sm-2 col-form-label">Nome</label>
+    <div class="col-sm-10">
+     <input type="text" class="form-control" id="bookName" placeholder="Nome do Livro" required>
+    </div>
+   </div>
+   <div class="form-group row">
+    <label for="author" class="col-sm-2 col-form-label">Autor</label>
+    <div class="col-sm-10">
+     <input type="text" class="form-control" id="author" placeholder="Autor" required>
+    </div>
+   </div>
+   <fieldset class="form-group">
+    <div class="row">
+     <legend class="col-form-label col-sm-2 pt-0">Tipo</legend>
+     <div class="col-sm-10">
+      <div class="form-check">
+       <input class="form-check-input" type="radio" name="type" id="fiction" value="ficção" checked>
+       <label class="form-check-label" for="fiction">Ficção</label>
+      </div>
+      <div class="form-check">
+       <input class="form-check-input" type="radio" name="type" id="programming" value="programação">
+       <label class="form-check-label" for="programming">Programação de Computador</label>
+      </div>
+      <div class="form-check disabled">
+       <input class="form-check-input" type="radio" name="type" id="cooking" value="culinária">
+       <label class="form-check-label" for="cooking">Culinária</label>
+      </div>
+     </div>
+    </div>
+   </fieldset>
+
+   <div class="form-group row">
+    <label for="withdrawalDate" class="col-sm-2 col-form-label">Data de Retirada</label>
+    <div class="col-sm-10">
+     <input type="date" class="form-control" id="withdrawalDate" required>
+    </div>
+   </div>
+
+   <div class="form-group row">
+    <label for="returnDate" class="col-sm-2 col-form-label">Prazo de Entrega</label>
+    <div class="col-sm-10">
+     <input type="text" class="form-control" id="returnDate" placeholder="Data de Entrega (30 dias)" readonly>
+    </div>
+   </div>
+
+   <div class="form-group row">
+    <div class="col-sm-10">
+     <button type="submit" class="btn btn-primary">Adicionar Livro</button>
+    </div>
+   </div>
+  </form>
+
+  <div id="table">
+   <h1>Seus livros</h1>
+   <table class="table table-striped">
+    <thead>
+     <tr>
+      <th scope="col">Nome</th>
+      <th scope="col">Autor</th>
+      <th scope="col">Tipo</th>
+      <th scope="col">Data de Retirada</th>
+      <th scope="col">Prazo de Entrega</th>
+      <th scope="col">Ações</th>
+     </tr>
+    </thead>
+    <tbody id='tableBody'></tbody>
+   </table>
+  </div>
+ </div>
+
+ <script src="./src/scripts/index.js" defer></script>
+ <script src="https://code.jquery.com/jquery-3.3.1.slim.min.js" crossorigin="anonymous" defer></script>
+ <script src="https://cdnjs.cloudflare.com/ajax/libs/popper.js/1.14.7/umd/popper.min.js" crossorigin="anonymous"
+  defer></script>
+ <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.3.1/js/bootstrap.min.js" crossorigin="anonymous"
+  defer></script>
+</body>
+
+</html>
